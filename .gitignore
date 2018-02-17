@@ -96,3 +96,5 @@ curl/winbuild/vc140.idb
 bin/GUP.exe
 bin/libcurl.dll
 bin/gup.xml
+
+!*.sln
