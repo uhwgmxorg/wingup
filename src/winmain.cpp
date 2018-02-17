@@ -27,6 +27,9 @@
 #define CURL_STATICLIB
 #include "../curl/include/curl/curl.h"
 
+// ##### use for WPF ##### uhwgmxorg
+#include <algorithm>
+
 using namespace std;
 
 HINSTANCE hInst;
@@ -483,15 +486,98 @@ bool getUpdateInfo(string &info2get, const GupParameters& gupParams, const GupEx
 	return true;
 }
 
+// ##### Changes for WPF #####
+HWND   g_hwnd;
+BOOL CALLBACK EnumWindowsProc(_In_ HWND   hwnd, _In_ LPARAM lParam)
+{
+	wchar_t *szWinTitle = new wchar_t[1024];
+	wstring *windowTitleToClose;
+
+	windowTitleToClose = (wstring*)lParam;
+
+	::GetWindowText(hwnd, (LPTSTR)szWinTitle, 1024);
+
+	wstring strHlp = szWinTitle;
+	int st = (int)(strHlp.find(*windowTitleToClose));
+	if (st >= 0)
+	{
+		g_hwnd = hwnd;
+		free(szWinTitle);
+		return false;
+	}
+
+	free(szWinTitle);
+	return true;
+}
+
+BOOL CloseExWindows(wstring windowToClose)
+{
+
+	g_hwnd = NULL;
+	::EnumWindows(EnumWindowsProc, (LPARAM)&windowToClose);
+
+	if (g_hwnd)
+	{
+		DWORD dwProcessId = 0;
+		GetWindowThreadProcessId(g_hwnd, &dwProcessId);
+
+		HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, FALSE, dwProcessId);
+
+		if (hProcess)
+		{
+			LPTSTR szExeName = new TCHAR[1024];
+			DWORD size = 1024;
+
+			QueryFullProcessImageName(hProcess, 0, szExeName, &size);
+			TerminateProcess(hProcess, 1);
+
+			CloseHandle(hProcess);
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+BOOL FindExWindows(wstring windowToClose)
+{
+
+	g_hwnd = NULL;
+	::EnumWindows(EnumWindowsProc, (LPARAM)&windowToClose);
+
+	if (g_hwnd)
+		return true;
+
+	return false;
+}
+// ########################### uhwgmxorg
+
 bool runInstaller(const string& app2runPath, const string& binWindowsClassName, const string& closeMsg, const string& closeMsgTitle)
 {
 
-	if (!binWindowsClassName.empty())
-	{
-		HWND h = ::FindWindowExA(NULL, NULL, binWindowsClassName.c_str(), NULL);
+	GupNativeLang nativeLang("nativeLang.xml");
+	GupParameters gupParams("gup.xml");
 
-		if (h)
+	// ###########################
+	// Here we close the window by title name not by the window class, this is necessary for WPF windows.
+	// If we trigger for a windows title including a blank then we insert a _ in the Gup.xml for the blank.
+	// ########################### uhwgmxorg
+	if (binWindowsClassName != "")
+	{
+		string s = binWindowsClassName;
+		std::replace(s.begin(), s.end(), '_', ' '); // Here we replace the _ for a blank e.g. ComMonitor__  uhwgmxorg
+		wstring ws = L"***************";
+		ws.resize(std::mbstowcs(&ws[0], s.c_str(), s.size()));
+
+		if (FindExWindows(ws))
 		{
+			string msg = binWindowsClassName;
+			string closeApp = nativeLang.getMessageString("MSGID_CLOSEAPP");
+			if (closeApp == "")
+				closeApp = MSGID_CLOSEAPP;
+			msg += closeApp;
+
 			int installAnswer = ::MessageBoxA(NULL, closeMsg.c_str(), closeMsgTitle.c_str(), MB_YESNO);
 
 			if (installAnswer == IDNO)
@@ -500,12 +586,8 @@ bool runInstaller(const string& app2runPath, const string& binWindowsClassName, 
 			}
 		}
 
-		// kill all process of binary needs to be updated.
-		while (h)
-		{
-			::SendMessage(h, WM_CLOSE, 0, 0);
-			h = ::FindWindowExA(NULL, NULL, binWindowsClassName.c_str(), NULL);
-		}
+		// Close all
+		while (CloseExWindows(ws));
 	}
 
 	// execute the installer
@@ -518,6 +600,7 @@ bool runInstaller(const string& app2runPath, const string& binWindowsClassName, 
 
 	return true;
 }
+
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 {
