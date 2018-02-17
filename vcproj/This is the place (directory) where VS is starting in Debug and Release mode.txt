@@ -1,0 +1,2 @@
+This is the place (directory) where VS is starting in Debug and Release mode
+to get the gup.xml file

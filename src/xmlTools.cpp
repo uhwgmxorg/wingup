@@ -24,7 +24,7 @@ using namespace std;
 GupParameters::GupParameters(const char * xmlFileName)
 {
 	_xmlDoc.LoadFile(xmlFileName);
-
+	
 	TiXmlNode *root = _xmlDoc.FirstChild("GUPInput");
 	if (!root)
 		throw exception("It's not a valid GUP input xml.");
