@@ -553,7 +553,7 @@ BOOL FindExWindows(wstring windowToClose)
 }
 // ########################### uhwgmxorg
 
-bool runInstaller(const string& app2runPath, const string& binWindowsClassName, const string& closeMsg, const string& closeMsgTitle)
+bool runInstallerForWpf(const string& app2runPath, const string& binWindowsClassName, const string& closeMsg, const string& closeMsgTitle)
 {
 
 	GupNativeLang nativeLang("nativeLang.xml");
@@ -761,7 +761,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 			closeApp = MSGID_CLOSEAPP;
 		msg += closeApp;
 
-		runInstaller(dlDest, gupParams.getClassName(), msg, gupParams.getMessageBoxTitle().c_str());
+		runInstallerForWpf(dlDest, gupParams.getClassName(), msg, gupParams.getMessageBoxTitle().c_str());
 
 		return 0;
 

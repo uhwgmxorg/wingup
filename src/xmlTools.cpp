@@ -25,6 +25,12 @@ GupParameters::GupParameters(const char * xmlFileName)
 {
 	_xmlDoc.LoadFile(xmlFileName);
 	
+
+
+	// ########################### uhwgmxorg
+	// This is just a trick to find out where we are (the directory from where we load the .xml file)
+	//system("cmd.exe");
+
 	TiXmlNode *root = _xmlDoc.FirstChild("GUPInput");
 	if (!root)
 		throw exception("It's not a valid GUP input xml.");
