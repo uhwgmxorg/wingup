@@ -601,6 +601,42 @@ bool runInstallerForWpf(const string& app2runPath, const string& binWindowsClass
     return true;
 }
 
+bool runInstaller(const string& app2runPath, const string& binWindowsClassName, const string& closeMsg, const string& closeMsgTitle)
+{
+
+	if (!binWindowsClassName.empty())
+	{
+		HWND h = ::FindWindowExA(NULL, NULL, binWindowsClassName.c_str(), NULL);
+
+		if (h)
+		{
+			int installAnswer = ::MessageBoxA(NULL, closeMsg.c_str(), closeMsgTitle.c_str(), MB_YESNO);
+
+			if (installAnswer == IDNO)
+			{
+				return 0;
+			}
+		}
+
+		// kill all process of binary needs to be updated.
+		while (h)
+		{
+			::SendMessage(h, WM_CLOSE, 0, 0);
+			h = ::FindWindowExA(NULL, NULL, binWindowsClassName.c_str(), NULL);
+		}
+	}
+
+	// execute the installer
+	HINSTANCE result = ::ShellExecuteA(NULL, "open", app2runPath.c_str(), "", ".", SW_SHOW);
+
+	if (result <= (HINSTANCE)32) // There's a problem (Don't ask me why, ask Microsoft)
+	{
+		return false;
+	}
+
+	return true;
+}
+
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 {
@@ -761,7 +797,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
             closeApp = MSGID_CLOSEAPP;
         msg += closeApp;
 
-        runInstaller(dlDest, gupParams.getClassName(), msg, gupParams.getMessageBoxTitle().c_str());
+		// ########################### uhwgmxorg
+		// runInstaller to close Application Window by class name 
+        //runInstaller(dlDest, gupParams.getClassName(), msg, gupParams.getMessageBoxTitle().c_str());
+		// runInstaller to close Application Window by string in the Windows Titlebar necessary for Wpf and .Net Application
+		runInstallerForWpf(dlDest, gupParams.getClassName(), msg, gupParams.getMessageBoxTitle().c_str());
 
         return 0;
 
