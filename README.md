@@ -8,9 +8,11 @@ I made the following changes:
 -----------------
 
 to make it useful for .Net applications (for example for a Wpf-program) it is not possible to close the window by the 
-Window Class to run the downloaded setup. Instead, one option would be to close the application via the text in the 
+Window Class to run the downloaded setup. Instead one option would be to close the application via the text in the 
 title bar.
-These changes have been made and all changes have been marked by me in the source code. 
+These changes have been made and all changes have been marked by me in the source code.
+And I added a VS 2017 .sln solution.
+Otherwise, the program works as described by Don HO. 
 
 
 
