@@ -39,5 +39,5 @@ How to build it?
 To whom should you say "thank you"?
 -----------------------------------
 
-Don HO
+Don HO for the main work
 <don.h@free.fr>
