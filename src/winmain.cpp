@@ -567,7 +567,7 @@ bool runInstallerForWpf(const string& app2runPath, const string& binWindowsClass
     {
         string s = binWindowsClassName;
         std::replace(s.begin(), s.end(), '_', ' '); // Here we replace the _ for a blank e.g. ComMonitor__  uhwgmxorg
-        wstring ws = L"***************";
+        wstring ws = L"********************************************************************************************";
         ws.resize(std::mbstowcs(&ws[0], s.c_str(), s.size()));
 
         if (FindExWindows(ws))
